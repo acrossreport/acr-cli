@@ -19,7 +19,7 @@ JSONテンプレートからPDF・PNGを生成します。Windows / Linux / macO
 - **1ドット精度のWYSIWYG** — デザインした通りに出力されます
 - **JSONテンプレート** — 人が読めるテキスト形式。Git管理・API連携が容易
 - **プリンタドライバ不要** — Google Skia による直接PDF・PNG出力
-- **ActiveReports互換** — 既存RPX資産を [rpx2json](https://github.com/acrossreport/rpx2json) で移行可能
+- **ActiveReportsコンバート** — 既存RPX資産を [rpx2json](https://github.com/acrossreport/rpx2json) で移行可能
 - **軽量バイナリ** — .NETやランタイム不要
 
 ---
