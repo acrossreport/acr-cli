@@ -1,6 +1,6 @@
 # ACR — Across Report Renderer CLI
 
-> **Patent pending** (Japan, ARC-001, 2026)
+> **Patent pending** (Japan, 2026)
 > Copyright © 2002-2026 Across Systems Corporation
 > Licensed under the [Apache License 2.0](LICENSE)
 
