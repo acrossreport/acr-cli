@@ -1,6 +1,6 @@
 # ACR — Across Report Renderer CLI
 
-> **特許出願中** (日本, ARC-001, 2026)
+> **特許出願中** (日本, 2026)
 > Copyright © 2002-2026 Across Systems Corporation
 > [Apache License 2.0](LICENSE) にて配布
 
