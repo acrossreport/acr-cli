@@ -19,7 +19,7 @@ Generate PDF and PNG from JSON templates — on Windows, Linux, and macOS.
 - **Pixel-perfect output** — 1-dot accuracy guaranteed. What you design is exactly what you get (WYSIWYG)
 - **JSON templates** — Human-readable, Git-friendly report definitions
 - **No printer driver required** — Direct PDF and PNG output via Google Skia
-- **ActiveReports conver ** — Migrate existing RPX assets with [rpx2json](https://github.com/acrossreport/rpx2json)
+- **ActiveReports conver** — Migrate existing RPX assets with [rpx2json](https://github.com/acrossreport/rpx2json)
 - **Lightweight binary** — No .NET or runtime dependencies
 
 ---
