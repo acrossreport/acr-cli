@@ -152,5 +152,5 @@ cargo build --release
 ## About
 
 **Across Systems Corporation**
-東京都杉並区
+東京都
 [https://github.com/acrossreport](https://github.com/acrossreport)
