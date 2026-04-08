@@ -1,1 +1,18 @@
-
+[package]
+name = "acr-cli"
+version = "1.0.0"
+edition = "2021"
+authors = ["Across Systems Corporation"]
+description = "ACR (Across Report Renderer) CLI — Cross-platform report engine"
+license = "Apache-2.0"
+repository = "https://github.com/acrossreport/acr-cli"
+homepage = "https://github.com/acrossreport"
+readme = "README.md"
+keywords = ["report", "pdf", "png", "printing", "wysiwyg"]
+categories = ["command-line-utilities", "rendering"]
+ 
+[dependencies]
+anyhow      = "1"
+chrono      = { version = "0.4", features = ["local-offset"] }
+encoding_rs = "0.8"
+ 
