@@ -13,6 +13,6 @@ categories = ["command-line-utilities", "rendering"]
  
 [dependencies]
 anyhow      = "1"
-chrono      = { version = "0.4", features = ["local-offset"] }
+chrono      = { version = "0.4", features = ["clock"] }
 encoding_rs = "0.8"
  
