@@ -41,12 +41,11 @@ JSONテンプレートからPDF・PNGを生成します。Windows / Linux / macO
 ```bash
 # PDF と PNG を同時出力
 acr_cli template.json data.json
-
 # バージョン
 acr_cli --version
-
 # ライセンス確認
 acr_cli activate
+```
 
 ---
 
@@ -132,8 +131,6 @@ git clone https://github.com/acrossreport/acr-cli.git
 cd acr-cli
 cargo build --release
 ```
-
-ビルド後のバイナリは `target/release/acr` に生成されます。
 
 ---
 
