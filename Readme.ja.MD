@@ -46,7 +46,37 @@ acr_cli --version
 # ライセンス確認
 acr_cli activate
 ```
+---
 
+## 日本語フォント設定
+
+日本語文字を正しく出力するには、ACRのカレントディレクトリにある
+`config.json` にフォント設定が必要です。
+
+デフォルトでは **BIZ UD Gothic**（Google）がフォントファミリーとして設定されています。
+
+OSに BIZ UD Gothic がインストールされていない場合は、OSの基本フォントで代替されます。
+マルチベンダー環境で統一した出力を求める場合は、各OSに BIZ UD Gothic を
+インストールして対応してください。
+
+ACR CLI を単独で利用する場合は、`config.json` の `font_dir` に
+フォントディレクトリのフルパスを指定し、ファイルへのアクセス権も適切に設定してください。
+
+```json
+"render": {
+    "dpi": 96,
+    "font": {
+        "default_family": "BIZUDGothic",
+        "fallback_family": "BIZUDGothic",
+        "font_dir": "/usr/share/fonts/truetype/bizud-gothic",
+        "force_embed_pdf": false
+    }
+}
+```
+
+> **注意:** Windowsの場合は `font_dir` に以下のようなフルパスを指定してください:
+> `C:\\Users\\<ユーザー名>\\AppData\\Local\\Microsoft\\Windows\\Fonts`
+README.ja.md に直接追記してよいですか？確認が取れたら str_replace で入れます。
 ---
 
 ## JSONテンプレート構造
