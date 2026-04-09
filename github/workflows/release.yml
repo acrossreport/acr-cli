@@ -1,3 +1,4 @@
+cat > ~/acr/.github/workflows/release.yml << 'EOF'
 name: Release
 on:
   push:
@@ -39,13 +40,8 @@ jobs:
         run: |
           cd target/${{ matrix.target }}/release
           7z a ../../../${{ matrix.archive }} ${{ matrix.runtime_bin }} ${{ matrix.layout_bin }}
-      - name: Package (macOS)
-        if: matrix.os == 'macos-latest'
-        run: |
-          cd target/${{ matrix.target }}/release
-          tar czf ../../../${{ matrix.archive }} ${{ matrix.runtime_bin }} ${{ matrix.layout_bin }}
-      - name: Package (Linux)
-        if: matrix.os == 'ubuntu-latest'
+      - name: Package (macOS / Linux)
+        if: matrix.os != 'windows-latest'
         run: |
           cd target/${{ matrix.target }}/release
           tar czf ../../../${{ matrix.archive }} ${{ matrix.runtime_bin }} ${{ matrix.layout_bin }}
@@ -53,4 +49,4 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: ${{ matrix.archive }}
-          
+EOF
