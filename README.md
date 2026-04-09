@@ -32,23 +32,20 @@ Download the binary for your platform from [Releases](https://github.com/acrossr
 |---|---|
 | Windows (x64) | `acr-windows-x86_64.zip` |
 | Linux (x64) | `acr-linux-x86_64.tar.gz` |
-| macOS (Intel) | `acr-macos-x86_64.tar.gz` |
 | macOS (Apple Silicon) | `acr-macos-aarch64.tar.gz` |
 
 ---
 
 ## Quick Start
-
 ```bash
-# Render a report to PDF and PNG
-acr render --template invoice.json --data data.json
+# Render a report to PDF and PNG (ZIP containing all pages)
+acr_cli template.json data.json
 
-# Output PDF only
-acr render --template invoice.json --data data.json --format pdf
+# Check version
+acr_cli --version
 
-# Output PNG only
-acr render --template invoice.json --data data.json --format png
-```
+# Activate license
+acr_cli activate
 
 ---
 
