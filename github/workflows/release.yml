@@ -15,22 +15,14 @@ jobs:
           - target: x86_64-pc-windows-msvc
             os: windows-latest
             archive: acr-windows-x86_64.zip
-            binary: acr.exe
-
-          - target: x86_64-unknown-linux-gnu
-            os: ubuntu-latest
-            archive: acr-linux-x86_64.tar.gz
-            binary: acr
-
-          - target: x86_64-apple-darwin
-            os: macos-latest
-            archive: acr-macos-x86_64.tar.gz
-            binary: acr
+            runtime_bin: axr_runtime.dll
+            layout_bin: axr_layout.dll
 
           - target: aarch64-apple-darwin
             os: macos-latest
             archive: acr-macos-aarch64.tar.gz
-            binary: acr
+            runtime_bin: libaxr_runtime.dylib
+            layout_bin: libaxr_layout.dylib
 
     steps:
       - name: Checkout
@@ -48,13 +40,13 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: |
           cd target/${{ matrix.target }}/release
-          7z a ../../../${{ matrix.archive }} ${{ matrix.binary }}
+          7z a ../../../${{ matrix.archive }} ${{ matrix.runtime_bin }} ${{ matrix.layout_bin }}
 
-      - name: Package (Linux / macOS)
-        if: matrix.os != 'windows-latest'
+      - name: Package (macOS)
+        if: matrix.os == 'macos-latest'
         run: |
           cd target/${{ matrix.target }}/release
-          tar czf ../../../${{ matrix.archive }} ${{ matrix.binary }}
+          tar czf ../../../${{ matrix.archive }} ${{ matrix.runtime_bin }} ${{ matrix.layout_bin }}
 
       - name: Upload to Release
         uses: softprops/action-gh-release@v2
