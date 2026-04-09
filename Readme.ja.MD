@@ -32,7 +32,6 @@ JSONテンプレートからPDF・PNGを生成します。Windows / Linux / macO
 |---|---|
 | Windows (x64) | `acr-windows-x86_64.zip` |
 | Linux (x64) | `acr-linux-x86_64.tar.gz` |
-| macOS (Intel) | `acr-macos-x86_64.tar.gz` |
 | macOS (Apple Silicon) | `acr-macos-aarch64.tar.gz` |
 
 ---
