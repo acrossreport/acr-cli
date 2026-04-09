@@ -46,7 +46,36 @@ acr_cli --version
 # Activate license
 acr_cli activate
 ```
+---
+## Japanese Font Configuration
 
+To render Japanese characters correctly, font settings must be configured
+in `config.json` located in the ACR working directory.
+
+By default, **BIZ UD Gothic** (Google) is set as the font family.
+
+If BIZ UD Gothic is not installed on the OS, ACR will fall back to the
+default OS font. For consistent output across multi-vendor environments,
+install BIZ UD Gothic on each OS.
+
+When running ACR CLI as a standalone tool, set `font_dir` to the full path
+of the font directory in `config.json`, and ensure appropriate file access
+permissions are configured.
+
+```json
+"render": {
+    "dpi": 96,
+    "font": {
+        "default_family": "BIZUDGothic",
+        "fallback_family": "BIZUDGothic",
+        "font_dir": "/usr/share/fonts/truetype/bizud-gothic",
+        "force_embed_pdf": false
+    }
+}
+```
+
+> **Note:** On Windows, set `font_dir` to the full path such as
+> `C:\\Users\\<user>\\AppData\\Local\\Microsoft\\Windows\\Fonts`
 ---
 
 ## JSON Template Structure
