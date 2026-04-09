@@ -40,14 +40,13 @@ JSONテンプレートからPDF・PNGを生成します。Windows / Linux / macO
 
 ```bash
 # PDF と PNG を同時出力
-acr render --template invoice.json --data data.json
+acr_cli template.json data.json
 
-# PDF のみ出力
-acr render --template invoice.json --data data.json --format pdf
+# バージョン
+acr_cli --version
 
-# PNG のみ出力
-acr render --template invoice.json --data data.json --format png
-```
+# ライセンス確認
+acr_cli activate
 
 ---
 
