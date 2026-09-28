@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ACR PNG Viewer</title>
+<!--
+============================================================
+ACR PNG Viewer（acr_png_viewer.html）
+------------------------------------------------------------
+acr_cli が出力する ZIP（manifest.json の format が "ACR-PNG-PACKAGE"）を
+ブラウザで表示する単体HTML。外部ライブラリ・ネット接続は使わない。
+
+・ZIPの読み込み: 中央ディレクトリを読み、Deflate はブラウザ標準の
+  DecompressionStream("deflate-raw") で展開する（無圧縮(Stored)にも対応）
+・対象ページ: pages/NNN.png（ファイル名順）
+・キー操作: Home=先頭 / ←・PageUp=前 / →・PageDown=次 / End=最終
+・等倍表示: PNGの1ピクセルを画面の1ドットに合わせる。
+  Windowsの表示スケールやブラウザのズーム（devicePixelRatio）で割り戻し、
+  さらに表示位置を画面ドットの境界に揃える（ぼやけ防止）。
+・全体表示: 画面に収まるよう縮小（確認用の補助。ドット単位の確認は等倍で行う）
+
+対応ブラウザ: DecompressionStream("deflate-raw") が使えるもの
+  （Chrome/Edge 103以降、Firefox 113以降、Safari 16.4以降）
+============================================================
+-->
+<style>
+  :root {
+    --desk: #767c83;
+    --desk-deep: #646a71;
+    --bar: #eef0f2;
+    --bar-line: #c9cdd2;
+    --ink: #1c2530;
+    --ink-sub: #58626d;
+    --accent: #1f4e8c;
+    --paper-edge: rgba(0, 0, 0, 0.35);
+    --error: #a3261c;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --desk: #3d4247;
+      --desk-deep: #33373c;
+      --bar: #23272b;
+      --bar-line: #3a3f45;
+      --ink: #e6e9ec;
+      --ink-sub: #a2aab3;
+      --accent: #8cb4ea;
+      --paper-edge: rgba(0, 0, 0, 0.6);
+      --error: #f08a80;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    display: flex;
+    flex-direction: column;
+    font-family: "Yu Gothic UI", "Meiryo UI", "Hiragino Sans", "Noto Sans CJK JP", "Noto Sans JP", sans-serif;
+    font-size: 14px;
+    color: var(--ink);
+    background: var(--desk);
+  }
+
+  /* ---------- ツールバー ---------- */
+  .toolbar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 8px 12px;
+    background: var(--bar);
+    border-bottom: 1px solid var(--bar-line);
+    flex-wrap: wrap;
+  }
+  .file { display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1 1 220px; }
+  .file-name {
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .nav { display: flex; align-items: center; gap: 4px; }
+  .mode { display: flex; }
+
+  button {
+    font: inherit;
+    color: var(--ink);
+    background: transparent;
+    border: 1px solid var(--bar-line);
+    border-radius: 4px;
+    padding: 5px 10px;
+    cursor: pointer;
+    min-width: 36px;
+  }
+  button:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+  button:disabled { opacity: 0.4; cursor: default; }
+  button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .open-btn { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .open-btn:hover:not(:disabled) { color: #fff; filter: brightness(1.1); }
+  @media (prefers-color-scheme: dark) { .open-btn { color: #0f1a28; } .open-btn:hover:not(:disabled) { color: #0f1a28; } }
+
+  .mode button { border-radius: 0; }
+  .mode button:first-child { border-radius: 4px 0 0 4px; }
+  .mode button:last-child { border-radius: 0 4px 4px 0; border-left: none; }
+  .mode button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+  @media (prefers-color-scheme: dark) { .mode button[aria-pressed="true"] { color: #0f1a28; } }
+
+  .page-box {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    margin: 0 6px;
+    font-variant-numeric: tabular-nums;
+  }
+  .page-box input {
+    width: 3.5em;
+    font: inherit;
+    font-size: 16px;
+    font-weight: 600;
+    text-align: right;
+    color: var(--ink);
+    background: transparent;
+    border: 1px solid var(--bar-line);
+    border-radius: 4px;
+    padding: 2px 4px;
+  }
+  .page-total { font-size: 16px; color: var(--ink-sub); }
+
+  /* ---------- 作業台（用紙の表示領域） ---------- */
+  .desk {
+    flex: 1;
+    overflow: auto;
+    position: relative;
+    background:
+      radial-gradient(circle at 50% 0%, var(--desk) 0%, var(--desk-deep) 100%);
+  }
+  .desk.fit { overflow: hidden; }
+  .stage {
+    min-width: 100%;
+    min-height: 100%;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 24px;
+    width: max-content;
+  }
+  .desk.fit .stage { width: 100%; height: 100%; align-items: center; }
+  .paper {
+    display: block;
+    background: #fff;
+    box-shadow: 0 0 0 1px var(--paper-edge), 0 6px 18px rgba(0, 0, 0, 0.28);
+  }
+  .paper.dot { image-rendering: pixelated; }
+  .paper.fit-img { max-width: 100%; max-height: 100%; object-fit: contain; }
+
+  /* ---------- 未選択・エラー表示 ---------- */
+  .empty {
+    position: absolute;
+    inset: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    border: 2px dashed rgba(255, 255, 255, 0.45);
+    border-radius: 8px;
+    color: #fff;
+    text-align: center;
+    padding: 24px;
+  }
+  .empty strong { font-size: 18px; }
+  .empty p { margin: 0; max-width: 34em; line-height: 1.7; opacity: 0.9; }
+  .desk.dragover .empty, .desk.dragover::after {
+    border-color: #fff;
+  }
+  .desk.dragover::after {
+    content: "ここにドロップして開く";
+    position: absolute;
+    inset: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: #fff;
+    background: rgba(31, 78, 140, 0.45);
+    border: 2px dashed #fff;
+    border-radius: 8px;
+    pointer-events: none;
+  }
+  .message {
+    padding: 8px 12px;
+    background: var(--bar);
+    border-bottom: 1px solid var(--bar-line);
+    color: var(--error);
+    font-weight: 600;
+  }
+  .message.warn { color: var(--ink); font-weight: 400; }
+
+  /* ---------- ステータスバー ---------- */
+  .status {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 20px;
+    padding: 6px 12px;
+    background: var(--bar);
+    border-top: 1px solid var(--bar-line);
+    color: var(--ink-sub);
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+  }
+  .status span b { color: var(--ink); font-weight: 600; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="file">
+    <button class="open-btn" id="openBtn" type="button">ZIPを開く</button>
+    <span class="file-name" id="fileName">ファイル未選択</span>
+    <input type="file" id="fileInput" accept=".zip,application/zip" hidden>
+  </div>
+  <div class="nav" role="group" aria-label="ページ移動">
+    <button id="firstBtn" type="button" title="先頭ページ（Home）" aria-label="先頭ページ" disabled>|◀</button>
+    <button id="prevBtn" type="button" title="前ページ（← / PageUp）" aria-label="前ページ" disabled>◀</button>
+    <label class="page-box">
+      <input id="pageInput" type="text" inputmode="numeric" value="-" aria-label="ページ番号" disabled>
+      <span class="page-total" id="pageTotal">/ -</span>
+    </label>
+    <button id="nextBtn" type="button" title="次ページ（→ / PageDown）" aria-label="次ページ" disabled>▶</button>
+    <button id="lastBtn" type="button" title="最終ページ（End）" aria-label="最終ページ" disabled>▶|</button>
+  </div>
+  <div class="mode" role="group" aria-label="表示方法">
+    <button id="dotBtn" type="button" aria-pressed="true" title="PNGの1ピクセルを画面の1ドットで表示">等倍</button>
+    <button id="fitBtn" type="button" aria-pressed="false" title="画面に収まるよう縮小して表示">全体</button>
+  </div>
+</div>
+
+<div class="message" id="message" hidden></div>
+
+<div class="desk" id="desk">
+  <div class="stage" id="stage">
+    <img class="paper dot" id="paper" alt="" hidden>
+  </div>
+  <div class="empty" id="empty">
+    <strong>acr_cli が出力した ZIP をここにドロップしてください</strong>
+    <p>「ZIPを開く」から選ぶこともできます。<br>
+       ページ移動は Home（先頭）、←（前）、→（次）、End（最終）です。</p>
+  </div>
+</div>
+
+<div class="status" id="status">
+  <span>表示: <b id="stView">-</b></span>
+</div>
+
+<script>
+"use strict";
+
+// ============================================================
+// ZIP 読み込み（外部ライブラリを使わない最小実装）
+// ------------------------------------------------------------
+// 中央ディレクトリ（EOCD → 各エントリ）を読み、ファイル名 → 展開関数 の
+// Map を返す。展開は必要になったときに行う（ページ数が多くても読み込みが軽い）。
+// 対応: Stored(0) / Deflate(8)。暗号化・ZIP64は非対応（エラーにする）。
+// ============================================================
+// ZIP-BEGIN
+function u16(v, o) { return v.getUint16(o, true); }
+function u32(v, o) { return v.getUint32(o, true); }
+
+async function inflateRaw(bytes) {
+  const ds = new DecompressionStream("deflate-raw");
+  const stream = new Blob([bytes]).stream().pipeThrough(ds);
+  return new Uint8Array(await new Response(stream).arrayBuffer());
+}
+
+function readZipDirectory(buf) {
+  const bytes = new Uint8Array(buf);
+  const view = new DataView(buf);
+
+  // EOCD（End of Central Directory）を末尾から探す（コメント最大65535バイト分）
+  let eocd = -1;
+  const minPos = Math.max(0, bytes.length - 22 - 65535);
+  for (let i = bytes.length - 22; i >= minPos; i--) {
+    if (u32(view, i) === 0x06054b50) { eocd = i; break; }
+  }
+  if (eocd < 0) throw new Error("ZIPファイルとして読めません（終端情報が見つかりません）");
+
+  const count = u16(view, eocd + 10);
+  const cdOffset = u32(view, eocd + 16);
+  if (count === 0xffff || cdOffset === 0xffffffff) {
+    throw new Error("ZIP64形式には対応していません");
+  }
+
+  const decoder = new TextDecoder("utf-8");
+  const entries = new Map();
+  let p = cdOffset;
+  for (let n = 0; n < count; n++) {
+    if (u32(view, p) !== 0x02014b50) throw new Error("ZIPの目次が壊れています");
+    const flags = u16(view, p + 8);
+    const method = u16(view, p + 10);
+    const compSize = u32(view, p + 20);
+    const nameLen = u16(view, p + 28);
+    const extraLen = u16(view, p + 30);
+    const commentLen = u16(view, p + 32);
+    const localOffset = u32(view, p + 42);
+    const name = decoder.decode(bytes.subarray(p + 46, p + 46 + nameLen));
+    p += 46 + nameLen + extraLen + commentLen;
+
+    if (name.endsWith("/")) continue; // フォルダ
+    if (compSize === 0xffffffff || localOffset === 0xffffffff) {
+      throw new Error("ZIP64形式には対応していません: " + name);
+    }
+
+    entries.set(name, async () => {
+      if (flags & 0x1) throw new Error("暗号化されたZIPには対応していません: " + name);
+      if (u32(view, localOffset) !== 0x04034b50) throw new Error("ZIPのデータが壊れています: " + name);
+      const lNameLen = u16(view, localOffset + 26);
+      const lExtraLen = u16(view, localOffset + 28);
+      const start = localOffset + 30 + lNameLen + lExtraLen;
+      const data = bytes.subarray(start, start + compSize);
+      if (method === 0) return data.slice();
+      if (method === 8) return inflateRaw(data);
+      throw new Error("対応していない圧縮方式です（method=" + method + "）: " + name);
+    });
+  }
+  return entries;
+}
+// ZIP-END
+
+// ============================================================
+// 画面
+// ============================================================
+const $ = (id) => document.getElementById(id);
+const desk = $("desk"), stage = $("stage"), paper = $("paper"), empty = $("empty");
+const pageInput = $("pageInput"), pageTotal = $("pageTotal");
+const firstBtn = $("firstBtn"), prevBtn = $("prevBtn"), nextBtn = $("nextBtn"), lastBtn = $("lastBtn");
+const dotBtn = $("dotBtn"), fitBtn = $("fitBtn");
+const messageEl = $("message"), statusEl = $("status");
+
+const state = {
+  pages: [],        // [{ name, load }]
+  cache: new Map(), // index → objectURL
+  index: 0,
+  manifest: null,
+  mode: "dot",      // "dot" = 等倍, "fit" = 全体
+  loadToken: 0,
+};
+
+function showMessage(text, warn) {
+  messageEl.textContent = text;
+  messageEl.classList.toggle("warn", !!warn);
+  messageEl.hidden = !text;
+}
+
+function clearPackage() {
+  for (const url of state.cache.values()) URL.revokeObjectURL(url);
+  state.cache.clear();
+  state.pages = [];
+  state.index = 0;
+  state.manifest = null;
+  paper.hidden = true;
+  paper.removeAttribute("src");
+  empty.hidden = false;
+  updateNav();
+  renderStatus();
+}
+
+async function openFile(file) {
+  if (!file) return;
+  const token = ++state.loadToken;
+  showMessage("");
+  $("fileName").textContent = file.name;
+  $("fileName").title = file.name;
+  clearPackage();
+
+  if (typeof DecompressionStream === "undefined") {
+    showMessage("このブラウザはZIPの展開に対応していません。Chrome・Edge・Firefox・Safari の新しい版で開いてください。");
+    return;
+  }
+
+  try {
+    const buf = await file.arrayBuffer();
+    const entries = readZipDirectory(buf);
+
+    const manifestLoad = entries.get("manifest.json");
+    if (!manifestLoad) throw new Error("manifest.json がありません。acr_cli が出力したZIPではありません。");
+    const manifestText = new TextDecoder("utf-8").decode(await manifestLoad());
+    let manifest;
+    try { manifest = JSON.parse(manifestText); }
+    catch (e) { throw new Error("manifest.json をJSONとして読めません"); }
+    if (manifest.format !== "ACR-PNG-PACKAGE") {
+      throw new Error("manifest.json の format が ACR-PNG-PACKAGE ではありません（" + String(manifest.format) + "）");
+    }
+
+    const pages = [...entries.keys()]
+      .filter((n) => /^pages\/[^/]+\.png$/i.test(n))
+      .sort()
+      .map((name) => ({ name, load: entries.get(name) }));
+    if (pages.length === 0) throw new Error("pages/ にPNGがありません");
+
+    if (token !== state.loadToken) return;
+    state.manifest = manifest;
+    state.pages = pages;
+
+    if (typeof manifest.page_count === "number" && manifest.page_count !== pages.length) {
+      showMessage("注意: manifest.json のページ数（" + manifest.page_count + "）と、ZIP内のPNGの数（" + pages.length + "）が一致しません。PNGの数で表示しています。", true);
+    }
+
+    empty.hidden = true;
+    await goTo(0);
+  } catch (err) {
+    if (token !== state.loadToken) return;
+    clearPackage();
+    showMessage("開けませんでした: " + err.message);
+  }
+}
+
+async function pageUrl(i) {
+  if (state.cache.has(i)) return state.cache.get(i);
+  const data = await state.pages[i].load();
+  const url = URL.createObjectURL(new Blob([data], { type: "image/png" }));
+  state.cache.set(i, url);
+  return url;
+}
+
+async function goTo(i) {
+  if (state.pages.length === 0) return;
+  i = Math.max(0, Math.min(state.pages.length - 1, i));
+  const token = state.loadToken;
+  state.index = i;
+  updateNav();
+  try {
+    const url = await pageUrl(i);
+    if (token !== state.loadToken || state.index !== i) return;
+    await new Promise((resolve, reject) => {
+      paper.onload = resolve;
+      paper.onerror = () => reject(new Error("PNGとして表示できません: " + state.pages[i].name));
+      paper.src = url;
+    });
+    if (token !== state.loadToken || state.index !== i) return;
+    paper.alt = (i + 1) + "ページ目";
+    paper.hidden = false;
+    applyMode();
+    desk.scrollTop = 0;
+    desk.scrollLeft = 0;
+    snapToDevicePixels();
+    renderStatus();
+  } catch (err) {
+    showMessage(err.message);
+  }
+}
+
+function updateNav() {
+  const n = state.pages.length;
+  const has = n > 0;
+  firstBtn.disabled = prevBtn.disabled = !has || state.index === 0;
+  nextBtn.disabled = lastBtn.disabled = !has || state.index === n - 1;
+  pageInput.disabled = !has;
+  pageInput.value = has ? String(state.index + 1) : "-";
+  pageTotal.textContent = "/ " + (has ? n : "-");
+}
+
+// ------------------------------------------------------------
+// 等倍表示: PNG 1ピクセル = 画面 1ドット
+// CSSピクセルと画面ドットは devicePixelRatio 倍ずれるため、
+// 画像の表示サイズを 自然サイズ ÷ devicePixelRatio にする。
+// ------------------------------------------------------------
+function applyMode() {
+  const dot = state.mode === "dot";
+  desk.classList.toggle("fit", !dot);
+  paper.classList.toggle("dot", dot);
+  paper.classList.toggle("fit-img", !dot);
+  dotBtn.setAttribute("aria-pressed", String(dot));
+  fitBtn.setAttribute("aria-pressed", String(!dot));
+  paper.style.transform = "";
+  if (paper.naturalWidth) {
+    if (dot) {
+      const dpr = window.devicePixelRatio || 1;
+      paper.style.width = (paper.naturalWidth / dpr) + "px";
+      paper.style.height = (paper.naturalHeight / dpr) + "px";
+    } else {
+      paper.style.width = "";
+      paper.style.height = "";
+    }
+  }
+  renderStatus();
+}
+
+// 表示位置を画面ドットの境界に揃える（端数位置だと補間でぼやけるため）
+function snapToDevicePixels() {
+  if (state.mode !== "dot" || paper.hidden) return;
+  const dpr = window.devicePixelRatio || 1;
+  paper.style.transform = "";
+  const r = paper.getBoundingClientRect();
+  const dx = (Math.round(r.left * dpr) - r.left * dpr) / dpr;
+  const dy = (Math.round(r.top * dpr) - r.top * dpr) / dpr;
+  if (Math.abs(dx) > 1e-4 || Math.abs(dy) > 1e-4) {
+    paper.style.transform = "translate(" + dx + "px," + dy + "px)";
+  }
+}
+
+let snapQueued = false;
+function queueSnap() {
+  if (snapQueued) return;
+  snapQueued = true;
+  requestAnimationFrame(() => { snapQueued = false; snapToDevicePixels(); });
+}
+
+// 表示スケール・ブラウザのズームが変わったら等倍サイズを計算し直す
+let dprQuery = null;
+function watchDpr() {
+  if (dprQuery) dprQuery.removeEventListener("change", onDprChange);
+  dprQuery = window.matchMedia("(resolution: " + (window.devicePixelRatio || 1) + "dppx)");
+  dprQuery.addEventListener("change", onDprChange);
+}
+function onDprChange() { watchDpr(); applyMode(); queueSnap(); }
+
+function setMode(mode) {
+  state.mode = mode;
+  applyMode();
+  queueSnap();
+}
+
+// ------------------------------------------------------------
+// ステータスバー（manifest.json の内容と表示状態）
+// ------------------------------------------------------------
+function twipsToMm(t) { return (t / 1440 * 25.4).toFixed(1); }
+
+function renderStatus() {
+  const m = state.manifest;
+  const items = [];
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  if (m) {
+    if (typeof m.width_twips === "number" && typeof m.height_twips === "number") {
+      items.push("用紙: <b>" + twipsToMm(m.width_twips) + " × " + twipsToMm(m.height_twips) + " mm</b>（" +
+        m.width_twips + " × " + m.height_twips + " twips）");
+    }
+    if (paper.naturalWidth && !paper.hidden) {
+      items.push("画像: <b>" + paper.naturalWidth + " × " + paper.naturalHeight + " px</b>");
+    }
+    if (m.dpi !== undefined) items.push("dpi: <b>" + esc(m.dpi) + "</b>");
+    if (m.created_at) items.push("作成: <b>" + esc(m.created_at) + "</b>");
+    if (m.engine_version) items.push("engine_version: <b>" + esc(m.engine_version) + "</b>");
+    if (m.version !== undefined) items.push("version: <b>" + esc(m.version) + "</b>");
+  }
+  const dpr = window.devicePixelRatio || 1;
+  let view;
+  if (state.mode === "dot") {
+    view = "等倍（1px = 画面1ドット" + (dpr !== 1 ? "、表示倍率 " + Math.round(dpr * 100) + "% を補正" : "") + "）";
+  } else {
+    view = "全体（縮小表示。ドット単位の確認は等倍で）";
+  }
+  items.push("表示: <b>" + view + "</b>");
+  statusEl.innerHTML = items.map((s) => "<span>" + s + "</span>").join("");
+}
+
+// ------------------------------------------------------------
+// 操作
+// ------------------------------------------------------------
+$("openBtn").addEventListener("click", () => $("fileInput").click());
+$("fileInput").addEventListener("change", (e) => {
+  openFile(e.target.files[0]);
+  e.target.value = "";
+});
+
+firstBtn.addEventListener("click", () => goTo(0));
+prevBtn.addEventListener("click", () => goTo(state.index - 1));
+nextBtn.addEventListener("click", () => goTo(state.index + 1));
+lastBtn.addEventListener("click", () => goTo(state.pages.length - 1));
+dotBtn.addEventListener("click", () => setMode("dot"));
+fitBtn.addEventListener("click", () => setMode("fit"));
+
+function commitPageInput() {
+  const n = parseInt(pageInput.value, 10);
+  if (Number.isFinite(n)) goTo(n - 1); else updateNav();
+}
+pageInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") { commitPageInput(); pageInput.blur(); }
+  if (e.key === "Escape") { updateNav(); pageInput.blur(); }
+});
+pageInput.addEventListener("blur", commitPageInput);
+pageInput.addEventListener("focus", () => pageInput.select());
+
+document.addEventListener("keydown", (e) => {
+  if (e.target === pageInput) return;
+  if (e.ctrlKey || e.altKey || e.metaKey) return;
+  if (state.pages.length === 0) return;
+  switch (e.key) {
+    case "Home": goTo(0); break;
+    case "ArrowLeft": case "PageUp": goTo(state.index - 1); break;
+    case "ArrowRight": case "PageDown": goTo(state.index + 1); break;
+    case "End": goTo(state.pages.length - 1); break;
+    default: return;
+  }
+  e.preventDefault();
+});
+
+// ドラッグ&ドロップ（画面のどこに落としても開く）
+let dragDepth = 0;
+document.addEventListener("dragenter", (e) => { e.preventDefault(); dragDepth++; desk.classList.add("dragover"); });
+document.addEventListener("dragleave", () => { dragDepth = Math.max(0, dragDepth - 1); if (!dragDepth) desk.classList.remove("dragover"); });
+document.addEventListener("dragover", (e) => e.preventDefault());
+document.addEventListener("drop", (e) => {
+  e.preventDefault();
+  dragDepth = 0;
+  desk.classList.remove("dragover");
+  const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+  if (f) openFile(f);
+});
+
+desk.addEventListener("scroll", queueSnap, { passive: true });
+window.addEventListener("resize", queueSnap);
+watchDpr();
+renderStatus();
+</script>
+</body>
+</html>
