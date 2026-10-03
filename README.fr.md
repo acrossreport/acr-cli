@@ -8,7 +8,7 @@ ACR CLI est un outil en ligne de commande qui effectue le rendu des données de 
 
 - Rendu en ligne de commande, sans interface graphique
 - Deux arguments : une définition (JSON) et un fichier de données (JSON)
-- Sortie : 【要確認】
+- Sortie : PDF et PNG (toutes les pages réunies dans un seul ZIP), produits à chaque exécution
 - La sortie PNG multipage est regroupée dans un seul fichier ZIP
 - Visionneuse ZIP incluse (fichier HTML unique) pour parcourir les PNG du ZIP page par page
 
@@ -27,7 +27,7 @@ ACR CLI est un outil en ligne de commande qui effectue le rendu des données de 
 
 Téléchargez le fichier correspondant à votre OS depuis les [Releases](https://github.com/acrossreport/acr-cli/releases).
 
-- Windows x64 : `【要確認】`
+- Windows x64 : `acr-cli-v0.1.0-win32-x64.zip`
 
 ## Utilisation
 
@@ -37,7 +37,7 @@ acr_cli <fichier de définition> <fichier de données>
 
 - 1er argument : fichier de définition (JSON)
 - 2e argument : fichier de données (JSON)
-- Choix du format et dossier de sortie : 【要確認】
+- Choix du format et dossier de sortie : aucune option nécessaire. Le PDF et le ZIP sont tous deux écrits dans le dossier `Output` du répertoire courant (créé s'il n'existe pas)
 
 Remarques :
 
@@ -48,11 +48,20 @@ Remarques :
 
 En sortie PNG, les pages sont regroupées dans un seul fichier ZIP (format ACR-PNG-PACKAGE).
 
-Pour en vérifier le contenu, ouvrez la visionneuse ZIP incluse (`【要確認】.html`) dans un navigateur et chargez le fichier ZIP. Les boutons Première / Précédente / Suivante / Dernière permettent de parcourir les pages.
+Pour en vérifier le contenu, ouvrez la visionneuse ZIP incluse (`acr-zip-viewer.html`) dans un navigateur et chargez le fichier ZIP. Les boutons Première / Précédente / Suivante / Dernière permettent de parcourir les pages.
 
 ## À propos de la sortie
 
-【要確認】
+Chaque exécution crée deux fichiers :
+
+- `Output/<nom du fichier de données>_<horodatage>.pdf`
+- `Output/<nom du fichier de données>_<horodatage>.zip`
+
+`<nom du fichier de données>` est le nom du second argument sans son extension, et `<horodatage>` la date et l'heure d'exécution au format `YYYYMMDDHHmm`.
+
+Le ZIP contient `manifest.json` et un PNG par page (`pages/001.png`, `pages/002.png`, ..., 96 dpi).
+
+Avec `--D`, le format de page et la taille du canevas (en twips) ainsi que le nombre de pages sont affichés. `--version` affiche la version.
 
 ## Liens
 
