@@ -29,6 +29,16 @@ Téléchargez le fichier correspondant à votre OS depuis les [Releases](https:/
 
 - Windows x64 : `acr-cli-v0.1.0-win32-x64.zip`
 
+## Activation de la licence (première utilisation uniquement)
+
+Avant la première utilisation, activez votre licence avec la commande suivante. Suivez les instructions à l'écran pour enregistrer votre adresse e-mail et le PC utilisé.
+
+```
+acr_cli activate
+```
+
+Sans activation, l'outil affiche `License not activated` et s'arrête.
+
 ## Utilisation
 
 ```
@@ -46,7 +56,7 @@ Remarques :
 
 ## Sortie PNG et visionneuse ZIP
 
-En sortie PNG, les pages sont regroupées dans un seul fichier ZIP (format ACR-PNG-PACKAGE).
+Les pages PNG sont regroupées dans un seul fichier ZIP (format ACR-PNG-PACKAGE).
 
 Pour en vérifier le contenu, ouvrez la visionneuse ZIP incluse (`acr-zip-viewer.html`) dans un navigateur et chargez le fichier ZIP. Les boutons Première / Précédente / Suivante / Dernière permettent de parcourir les pages.
 

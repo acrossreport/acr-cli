@@ -29,6 +29,16 @@ Download the file for your OS from [Releases](https://github.com/acrossreport/ac
 
 - Windows x64: `acr-cli-v0.1.0-win32-x64.zip`
 
+## License Activation (first time only)
+
+Before using ACR CLI for the first time, activate your license with the following command. Follow the on-screen instructions to register your email address and the PC you will use.
+
+```
+acr_cli activate
+```
+
+If you run it without activating, it prints `License not activated` and exits.
+
 ## Usage
 
 ```
@@ -46,7 +56,7 @@ Notes:
 
 ## PNG output and the ZIP viewer
 
-When outputting PNG, the pages are bundled into a single ZIP file (ACR-PNG-PACKAGE format).
+The PNG pages are bundled into a single ZIP file (ACR-PNG-PACKAGE format).
 
 To check the contents, open the included ZIP viewer (`acr-zip-viewer.html`) in a browser and load the ZIP file. You can page through the PNGs with First / Previous / Next / Last.
 
