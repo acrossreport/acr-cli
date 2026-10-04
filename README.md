@@ -16,20 +16,33 @@ ACR CLI is a command-line tool that renders ACR (AcrossReport) report data and o
 
 | OS | Status |
 |---|---|
-| Windows x64 | Supported (this release) |
-| macOS (Apple Silicon) | Planned |
-| macOS (Intel) | Planned |
-| Linux x64 | Supported (this release) |
+| Windows x64 | Supported |
+| Windows ARM64 | Supported |
+| macOS (Apple Silicon) | Supported |
+| macOS (Intel) | Supported |
+| Linux x64 | Supported |
+| Linux ARM64 | Supported |
 
 - Supported Windows versions: Windows 11 or later
-- Linux: x86_64, glibc 2.34 or later (e.g. Ubuntu 22.04 or later), OpenSSL 3, fontconfig and FreeType are required (on Ubuntu/Debian: `sudo apt install libfontconfig1 libfreetype6`)
+- Linux: x86_64 or ARM64 (aarch64), glibc 2.34 or later (e.g. Ubuntu 22.04 or later), OpenSSL 3, fontconfig and FreeType are required (on Ubuntu/Debian: `sudo apt install libfontconfig1 libfreetype6`)
+- macOS: Apple Silicon or Intel, macOS 11 or later
 
 ## Download
 
 Download the file for your OS from [Releases](https://github.com/acrossreport/acr-cli/releases).
 
 - Windows x64: `acr-cli-v0.1.0-win32-x64.zip`
+- Windows ARM64: `acr-cli-v0.1.0-win32-arm64.zip`
+- macOS (Apple Silicon): `acr-cli-v0.1.0-darwin-arm64.zip`
+- macOS (Intel): `acr-cli-v0.1.0-darwin-x64.zip`
 - Linux x64: `acr-cli-v0.1.0-linux-x64.zip`
+- Linux ARM64: `acr-cli-v0.1.0-linux-arm64.zip`
+
+On macOS, executables downloaded with a browser are blocked by the security feature (Gatekeeper). Run the following command once in the folder where you extracted the ZIP:
+
+```
+xattr -d com.apple.quarantine acr_cli
+```
 
 ## License Activation (first time only)
 
