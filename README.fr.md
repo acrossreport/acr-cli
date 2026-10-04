@@ -19,15 +19,17 @@ ACR CLI est un outil en ligne de commande qui effectue le rendu des données de 
 | Windows x64 | Pris en charge (cette version) |
 | macOS (Apple Silicon) | Prévu |
 | macOS (Intel) | Prévu |
-| Linux x64 | Prévu |
+| Linux x64 | Pris en charge (cette version) |
 
 - Versions de Windows prises en charge : Windows 11 ou version ultérieure
+- Linux : x86_64, glibc 2.34 ou ultérieure (par ex. Ubuntu 22.04 ou ultérieure), OpenSSL 3, fontconfig et FreeType sont nécessaires (sous Ubuntu/Debian : `sudo apt install libfontconfig1 libfreetype6`)
 
 ## Téléchargement
 
 Téléchargez le fichier correspondant à votre OS depuis les [Releases](https://github.com/acrossreport/acr-cli/releases).
 
 - Windows x64 : `acr-cli-v0.1.0-win32-x64.zip`
+- Linux x64 : `acr-cli-v0.1.0-linux-x64.zip`
 
 ## Activation de la licence (première utilisation uniquement)
 

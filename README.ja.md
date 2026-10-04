@@ -19,15 +19,17 @@ ACR CLI は、ACR(AcrossReport)の帳票データを描画し、ファイルと�
 | Windows x64 | 対応(本リリース) |
 | macOS(Apple Silicon) | 対応予定 |
 | macOS(Intel) | 対応予定 |
-| Linux x64 | 対応予定 |
+| Linux x64 | 対応(本リリース) |
 
 - 対応する Windows のバージョン:Windows 11 以上
+- Linux:x86_64、glibc 2.34 以上(Ubuntu 22.04 以上が目安)、OpenSSL 3、fontconfig と FreeType が必要です(Ubuntu/Debian では `sudo apt install libfontconfig1 libfreetype6`)
 
 ## ダウンロード
 
 [Releases](https://github.com/acrossreport/acr-cli/releases) から、お使いの OS 用のファイルをダウンロードしてください。
 
 - Windows x64:`acr-cli-v0.1.0-win32-x64.zip`
+- Linux x64:`acr-cli-v0.1.0-linux-x64.zip`
 
 ## ライセンス認証(初回のみ)
 
