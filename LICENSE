@@ -10,7 +10,12 @@ binary form through https://github.com/acrossreport/acr-cli.
    personal and business purposes.
 
 2. Watermark and License Key
-   【要確認】
+   A valid license key must be registered before using the Software
+   (run "acr_cli activate"). Output produced after registration does not
+   include a watermark.
+   One license key can be registered on up to three (3) computers.
+   Re-registering on the same computer does not count toward this limit.
+   To register additional computers, please apply to support by email.
 
 3. Redistribution
    You may not redistribute the Software to any third party in any form,
@@ -70,7 +75,12 @@ Copyright (c) Across Systems Corporation. All rights reserved.
    利用できます。
 
 2. ウォーターマークとライセンスキー
-   【要確認】
+   本ソフトウェアを利用するには、事前に有効なライセンスキーの登録
+   （acr_cli activate）が必要です。登録後の出力には、ウォーターマークは
+   入りません。
+   1つのライセンスキーで登録できるコンピュータは3台までです。
+   同じコンピュータでの再登録は台数に数えません。
+   追加の登録が必要な場合は、サポートまでメールでご申請ください。
 
 3. 再配布
    本ソフトウェアを、形態を問わず第三者へ再配布することを禁止します
