@@ -16,20 +16,33 @@ ACR CLI est un outil en ligne de commande qui effectue le rendu des données de 
 
 | OS | Statut |
 |---|---|
-| Windows x64 | Pris en charge (cette version) |
-| macOS (Apple Silicon) | Prévu |
-| macOS (Intel) | Prévu |
-| Linux x64 | Pris en charge (cette version) |
+| Windows x64 | Pris en charge |
+| Windows ARM64 | Pris en charge |
+| macOS (Apple Silicon) | Pris en charge |
+| macOS (Intel) | Pris en charge |
+| Linux x64 | Pris en charge |
+| Linux ARM64 | Pris en charge |
 
 - Versions de Windows prises en charge : Windows 11 ou version ultérieure
-- Linux : x86_64, glibc 2.34 ou ultérieure (par ex. Ubuntu 22.04 ou ultérieure), OpenSSL 3, fontconfig et FreeType sont nécessaires (sous Ubuntu/Debian : `sudo apt install libfontconfig1 libfreetype6`)
+- Linux : x86_64 ou ARM64 (aarch64), glibc 2.34 ou ultérieure (par ex. Ubuntu 22.04 ou ultérieure), OpenSSL 3, fontconfig et FreeType sont nécessaires (sous Ubuntu/Debian : `sudo apt install libfontconfig1 libfreetype6`)
+- macOS : Apple Silicon ou Intel, macOS 11 ou version ultérieure
 
 ## Téléchargement
 
 Téléchargez le fichier correspondant à votre OS depuis les [Releases](https://github.com/acrossreport/acr-cli/releases).
 
 - Windows x64 : `acr-cli-v0.1.0-win32-x64.zip`
+- Windows ARM64 : `acr-cli-v0.1.0-win32-arm64.zip`
+- macOS (Apple Silicon) : `acr-cli-v0.1.0-darwin-arm64.zip`
+- macOS (Intel) : `acr-cli-v0.1.0-darwin-x64.zip`
 - Linux x64 : `acr-cli-v0.1.0-linux-x64.zip`
+- Linux ARM64 : `acr-cli-v0.1.0-linux-arm64.zip`
+
+Sous macOS, les exécutables téléchargés avec un navigateur sont bloqués par la fonction de sécurité (Gatekeeper). Exécutez une seule fois la commande suivante dans le dossier où vous avez extrait le ZIP :
+
+```
+xattr -d com.apple.quarantine acr_cli
+```
 
 ## Activation de la licence (première utilisation uniquement)
 

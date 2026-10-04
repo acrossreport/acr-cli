@@ -16,20 +16,33 @@ ACR CLI は、ACR(AcrossReport)の帳票データを描画し、ファイルと�
 
 | OS | 状況 |
 |---|---|
-| Windows x64 | 対応(本リリース) |
-| macOS(Apple Silicon) | 対応予定 |
-| macOS(Intel) | 対応予定 |
-| Linux x64 | 対応(本リリース) |
+| Windows x64 | 対応 |
+| Windows ARM64 | 対応 |
+| macOS(Apple Silicon) | 対応 |
+| macOS(Intel) | 対応 |
+| Linux x64 | 対応 |
+| Linux ARM64 | 対応 |
 
 - 対応する Windows のバージョン:Windows 11 以上
-- Linux:x86_64、glibc 2.34 以上(Ubuntu 22.04 以上が目安)、OpenSSL 3、fontconfig と FreeType が必要です(Ubuntu/Debian では `sudo apt install libfontconfig1 libfreetype6`)
+- Linux:x86_64 または ARM64(aarch64)、glibc 2.34 以上(Ubuntu 22.04 以上が目安)、OpenSSL 3、fontconfig と FreeType が必要です(Ubuntu/Debian では `sudo apt install libfontconfig1 libfreetype6`)
+- macOS:Apple Silicon または Intel、macOS 11 以上
 
 ## ダウンロード
 
 [Releases](https://github.com/acrossreport/acr-cli/releases) から、お使いの OS 用のファイルをダウンロードしてください。
 
 - Windows x64:`acr-cli-v0.1.0-win32-x64.zip`
+- Windows ARM64:`acr-cli-v0.1.0-win32-arm64.zip`
+- macOS(Apple Silicon):`acr-cli-v0.1.0-darwin-arm64.zip`
+- macOS(Intel):`acr-cli-v0.1.0-darwin-x64.zip`
 - Linux x64:`acr-cli-v0.1.0-linux-x64.zip`
+- Linux ARM64:`acr-cli-v0.1.0-linux-arm64.zip`
+
+macOS では、ブラウザでダウンロードした実行ファイルはセキュリティ機能(Gatekeeper)によって実行がブロックされます。ZIP を展開したフォルダで、次のコマンドを一度だけ実行してください。
+
+```
+xattr -d com.apple.quarantine acr_cli
+```
 
 ## ライセンス認証(初回のみ)
 
