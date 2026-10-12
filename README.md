@@ -4,6 +4,12 @@ English | [日本語](README.ja.md) | [Français](README.fr.md)
 
 ACR CLI is a command-line tool that renders ACR (AcrossReport) report data and outputs it as files. Pass a design definition and a data file, and it renders the report without opening any window. It is suited for batch processing and integration with other systems.
 
+## Demo
+
+![ACR CLI demo: rendering a 1,394-page PDF and ZIP in about 20 seconds](docs/demo.gif)
+
+A 1,394-page PDF and ZIP (all pages as PNG) generated in about 20 seconds, then viewed instantly with the bundled ZIP viewer.
+
 ## Features
 
 - Command-line rendering with no GUI
