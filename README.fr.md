@@ -90,6 +90,7 @@ Avec `--D`, le format de page et la taille du canevas (en twips) ainsi que le no
 
 ## Liens
 
+- ACR Samples (modèles/données d'exemple, à essayer tout de suite) : https://github.com/acrossreport/acr-samples
 - ACR Designer : https://github.com/acrossreport/acr-designer
 - ACR Viewer : https://github.com/acrossreport/acr-viewer
 - Spécification ACR (modèle JSON) : https://github.com/acrossreport/acr-spec

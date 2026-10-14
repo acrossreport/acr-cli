@@ -96,6 +96,7 @@ ZIP には `manifest.json` と、ページごとの PNG(`pages/001.png`、`pages
 
 ## 関連リンク
 
+- ACR Samples(サンプルテンプレート・データ。すぐに試せます):https://github.com/acrossreport/acr-samples
 - ACR Designer:https://github.com/acrossreport/acr-designer
 - ACR Viewer:https://github.com/acrossreport/acr-viewer
 - ACR 仕様(JSON テンプレート):https://github.com/acrossreport/acr-spec

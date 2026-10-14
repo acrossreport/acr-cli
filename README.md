@@ -96,6 +96,7 @@ With `--D`, the page size and canvas size (in twips) and the page count are prin
 
 ## Links
 
+- ACR Samples (sample templates/data, try it right away): https://github.com/acrossreport/acr-samples
 - ACR Designer: https://github.com/acrossreport/acr-designer
 - ACR Viewer: https://github.com/acrossreport/acr-viewer
 - ACR specification (JSON template): https://github.com/acrossreport/acr-spec
