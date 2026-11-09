@@ -44,16 +44,6 @@ Sous macOS, les exécutables téléchargés avec un navigateur sont bloqués par
 xattr -d com.apple.quarantine acr_cli
 ```
 
-## Activation de la licence (première utilisation uniquement)
-
-Avant la première utilisation, activez votre licence avec la commande suivante. Suivez les instructions à l'écran pour enregistrer votre adresse e-mail et le PC utilisé.
-
-```
-acr_cli activate
-```
-
-Sans activation, l'outil affiche `License not activated` et s'arrête.
-
 ## Utilisation
 
 ```

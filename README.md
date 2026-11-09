@@ -50,16 +50,6 @@ On macOS, executables downloaded with a browser are blocked by the security feat
 xattr -d com.apple.quarantine acr_cli
 ```
 
-## License Activation (first time only)
-
-Before using ACR CLI for the first time, activate your license with the following command. Follow the on-screen instructions to register your email address and the PC you will use.
-
-```
-acr_cli activate
-```
-
-If you run it without activating, it prints `License not activated` and exits.
-
 ## Usage
 
 ```
